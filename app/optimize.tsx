@@ -71,7 +71,7 @@ export default function OptimizeScreen() {
           });
         }
 
-        const apiUrl = getApiUrl();
+        const apiUrl = getApiUrl().replace(/\/$/, "");
         const parseResponse = await fetch(`${apiUrl}/api/pdf/parse`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
