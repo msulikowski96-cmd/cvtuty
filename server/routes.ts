@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "node:http";
 import OpenAI from "openai";
+import pdf from "pdf-parse";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -8,6 +9,24 @@ const openai = new OpenAI({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // New endpoint to parse PDF
+  app.post("/api/pdf/parse", async (req, res) => {
+    try {
+      const { base64 } = req.body;
+      if (!base64) {
+        return res.status(400).json({ error: "Base64 data is required" });
+      }
+
+      const buffer = Buffer.from(base64, "base64");
+      const data = await pdf(buffer);
+      
+      res.json({ text: data.text });
+    } catch (error) {
+      console.error("PDF parse error:", error);
+      res.status(500).json({ error: "Failed to parse PDF" });
+    }
+  });
+
   app.post("/api/cv/optimize", async (req, res) => {
     try {
       const { cvText, jobDescription } = req.body;
